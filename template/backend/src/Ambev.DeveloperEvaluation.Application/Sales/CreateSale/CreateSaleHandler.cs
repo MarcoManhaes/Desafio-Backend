@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 
@@ -10,14 +11,21 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
 {
     private readonly ISaleRepository _saleRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<CreateSaleHandler> _logger;
 
-    public CreateSaleHandler(ISaleRepository saleRepository, IMapper mapper)
+    public CreateSaleHandler(
+        ISaleRepository saleRepository,
+        IMapper mapper,
+        ILogger<CreateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
-    public async Task<CreateSaleResult> Handle(CreateSaleCommand command, CancellationToken cancellationToken)
+    public async Task<CreateSaleResult> Handle(
+        CreateSaleCommand command,
+        CancellationToken cancellationToken)
     {
         var validator = new CreateSaleValidator();
         var validationResult = await validator.ValidateAsync(command, cancellationToken);
@@ -25,13 +33,15 @@ public class CreateSaleHandler : IRequestHandler<CreateSaleCommand, CreateSaleRe
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
 
-        // Mapeia para entidade Sale
         var sale = _mapper.Map<Sale>(command);
 
-        // Persiste a Sale (deve implementar CreateAsync no repo)
         var entity = await _saleRepository.CreateAsync(sale, cancellationToken);
 
-        // Mapeia o resultado
+        _logger.LogInformation(
+            "SaleCreated | SaleId: {SaleId} | TotalAmount: {TotalAmount}",
+            entity.Id,
+            entity.TotalAmount);
+
         var result = _mapper.Map<CreateSaleResult>(entity);
         return result;
     }

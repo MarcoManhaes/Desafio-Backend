@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
-using Ambev.DeveloperEvaluation.WebApi.Features.Sales.UpdateSale;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.UpdateSale;
 
@@ -15,14 +14,21 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
 {
     private readonly ISaleRepository _saleRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<UpdateSaleHandler> _logger;
 
-    public UpdateSaleHandler(ISaleRepository saleRepository, IMapper mapper)
+    public UpdateSaleHandler(
+        ISaleRepository saleRepository,
+        IMapper mapper,
+        ILogger<UpdateSaleHandler> logger)
     {
         _saleRepository = saleRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
-    public async Task<UpdateSaleResult> Handle(UpdateSaleCommand command, CancellationToken cancellationToken)
+    public async Task<UpdateSaleResult> Handle(
+        UpdateSaleCommand command,
+        CancellationToken cancellationToken)
     {
         var sale = await _saleRepository.GetByIdAsync(command.Id, cancellationToken);
 
@@ -55,7 +61,11 @@ public class UpdateSaleHandler : IRequestHandler<UpdateSaleCommand, UpdateSaleRe
 
         await _saleRepository.UpdateAsync(sale, cancellationToken);
 
+        _logger.LogInformation(
+            "SaleModified | SaleId: {SaleId} | NewTotalAmount: {TotalAmount}",
+            sale.Id,
+            sale.TotalAmount);
+
         return _mapper.Map<UpdateSaleResult>(sale);
     }
-
 }

@@ -21,17 +21,5 @@ public class UpdateSaleCommand : IRequest<UpdateSaleResult>
     public string BranchName { get; set; } = string.Empty;
 
     public List<UpdateSaleItemCommand> Items { get; set; } = new();
-
-    //public ValidationResultDetail Validate()
-    //{
-    //    var validator = new UpdateSaleValidator();
-    //    var result = validator.Validate(this);
-
-    //    return new ValidationResultDetail
-    //    {
-    //        IsValid = result.IsValid,
-    //        Errors = result.Errors.Select(o => (ValidationErrorDetail)o)
-    //    };
-    //}
 }
 
