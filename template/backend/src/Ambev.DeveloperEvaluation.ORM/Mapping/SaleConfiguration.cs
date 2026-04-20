@@ -8,11 +8,28 @@ public class SaleConfiguration : IEntityTypeConfiguration<Sale>
 {
     public void Configure(EntityTypeBuilder<Sale> builder)
     {
-        builder.HasKey(s => s.Id);
-        builder.Property(s => s.Number).IsRequired();
-        builder.Property(s => s.CustomerName).HasMaxLength(100);
-        builder.Property(s => s.BranchName).HasMaxLength(100);
-        builder.HasMany(s => s.Items).WithOne().HasForeignKey("SaleId").OnDelete(DeleteBehavior.Cascade);
         builder.ToTable("Sales");
+
+        builder.HasKey(s => s.Id);
+
+        builder.Property(s => s.Id)
+            .HasColumnType("uuid")
+            .HasDefaultValueSql("gen_random_uuid()");
+
+        builder.Property(s => s.Number).IsRequired();
+        builder.Property(s => s.CustomerName)
+            .HasMaxLength(100)
+            .IsRequired(); 
+        builder.Property(s => s.BranchName)
+            .HasMaxLength(100)
+            .IsRequired(); 
+
+        builder.Property(s => s.Status)
+            .HasConversion<string>();
+
+        builder.HasMany(s => s.Items)
+            .WithOne()
+            .HasForeignKey("SaleId")
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
