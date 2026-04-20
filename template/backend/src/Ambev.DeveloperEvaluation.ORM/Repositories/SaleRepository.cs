@@ -25,7 +25,6 @@ public class SaleRepository : ISaleRepository
 
     public async Task<Sale?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        // Inclua os itens, normalmente: .Include(s => s.Items)
         return await _context.Sales
             .Include(s => s.Items)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
@@ -36,8 +35,24 @@ public class SaleRepository : ISaleRepository
         var sale = await GetByIdAsync(id, cancellationToken);
         if (sale == null)
             return false;
+
         _context.Sales.Remove(sale);
         await _context.SaveChangesAsync(cancellationToken);
         return true;
     }
+
+    /// <summary>
+    /// Updates an existing sale
+    /// </summary>
+    public async Task UpdateAsync(Sale sale, CancellationToken cancellationToken = default)
+    {
+        _context.Sales.Update(sale);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public IQueryable<Sale> Query()
+    {
+        return _context.Sales.AsNoTracking();
+    }
+
 }

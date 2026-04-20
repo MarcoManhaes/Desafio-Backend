@@ -30,4 +30,18 @@ public interface ISaleRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if deleted, false otherwise</returns>
     Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates an existing sale in the repository
+    /// </summary>
+    /// <param name="sale"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task UpdateAsync(Sale sale, CancellationToken cancellationToken = default);
+
+
+    /// <summary>
+    /// Returns a queryable for sales (used for listing, filtering and pagination)
+    /// </summary>
+    IQueryable<Sale> Query();
 }
